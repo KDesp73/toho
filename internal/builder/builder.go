@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"toho/internal/files"
-	"toho/internal/logging"
 	"toho/internal/strutils"
 )
 
@@ -70,7 +69,6 @@ func Process(filesStructs []files.File) (*Builder, error) {
 				return nil, fmt.Errorf("error extracting number from file %s, line %d: %v", file.Name, lineNum+1, err)
 			}
 
-			logging.Info("Index found: %d", index)
 			hasIndex = true
 			break
 		}
@@ -78,22 +76,18 @@ func Process(filesStructs []files.File) (*Builder, error) {
 
 	if hasIndex {
 		if prevFile, ok := orderedFiles[index]; !ok {
-			logging.Info("Added file: %s with index: %d", file.Name, index)
 			orderedFiles[index] = file
 			if index > maxIndex {
 				maxIndex = index
 			}
 		} else {
 			// Replace the file with the duplicate index
-			logging.Info("Replaced file: %s with index: %d", prevFile.Name, index)
 			orderedFiles[index] = file
 			maxIndex++
-			logging.Info("Added file: %s with index: %d", prevFile.Name, maxIndex)
 			orderedFiles[maxIndex] = prevFile
 		}
 	} else {
 		maxIndex++
-		logging.Info("Added file: %s with index: %d", file.Name, maxIndex)
 		orderedFiles[maxIndex] = file
 	}
 }

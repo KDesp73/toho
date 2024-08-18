@@ -1,0 +1,54 @@
+package main
+
+import (
+	"os"
+	"strings"
+	"toho/internal/builder"
+	"toho/internal/files"
+	"toho/internal/logging"
+)
+
+func main() {
+	if(len(os.Args) < 4) {
+		logging.Info("Usage: %s <project-path> <filename> <library-define>", os.Args[0]);
+		return
+	}
+
+	project := os.Args[1]
+	filename := os.Args[2]
+	define := strings.ToUpper(os.Args[3])
+
+	logging.Info("Project path: %s", project)
+	logging.Info("File name: %s", filename)
+	logging.Info("Library define: %s", define)
+
+	listConfig := files.ListConfig{
+		Paths: []string {
+			files.SrcDir(project),
+			files.IncludeDir(project),
+		},
+		Extensions: []string {
+			"c",
+			"h",
+		},
+	}
+	files, err := files.ListDirectory(listConfig)
+
+	if(err != nil){
+		logging.Panic("%v", err)
+	}
+
+	if(len(files) == 0) {
+		logging.Panic("No source files found")
+	}
+
+	logging.Info("%d files found", len(files))
+
+	builder, err := builder.Process(files)
+
+	if err != nil {
+		logging.Panic("%v", err)
+	}
+
+	builder.Build(filename, define)
+}
