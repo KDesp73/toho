@@ -1,14 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"toho/internal/builder"
 	"toho/internal/files"
+	"toho/internal/constants"
 	"toho/internal/logging"
 )
 
 func main() {
+	if(os.Args[1] == "-h" || os.Args[1] == "--help"){
+		logging.Info("Usage: %s <project-path> <filename> <library-define>", os.Args[0]);
+		return
+	}
+
+	if(os.Args[1] == "-v" || os.Args[1] == "--version"){
+		fmt.Printf("toho v%s\n", constants.VERSION)
+		return
+	}
+
 	if(len(os.Args) < 4) {
 		logging.Info("Usage: %s <project-path> <filename> <library-define>", os.Args[0]);
 		return
