@@ -50,5 +50,11 @@ func main() {
 		logging.Panic("%v", err)
 	}
 
-	builder.Build(filename, define)
+	err = builder.Build(filename, define)
+
+	if err != nil {
+		logging.Panic("%v", err)
+	}
+
+	logging.Info("%s generated successfully", filename)
 }
