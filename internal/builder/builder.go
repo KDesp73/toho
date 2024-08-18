@@ -59,43 +59,44 @@ func Process(filesStructs []files.File) (*Builder, error) {
     orderedFiles := make(map[int]files.File)
     maxIndex := 0
 
-    for _, file := range filesStructs {
-        if file.Extension == "h" {
-            hasIndex := false
-            var index int
-            for lineNum, line := range strings.Split(file.Content, "\n") {
-                if strutils.StartsWith(line, "// {") {
-                    var err error
-                    index, err = extractNumber(line)
-                    if err != nil {
-                        return nil, fmt.Errorf("error extracting number from file %s, line %d: %v", file.Name, lineNum+1, err)
-                    }
+	for _, file := range filesStructs {
+		hasIndex := false
+		var index int
+		for lineNum, line := range strings.Split(file.Content, "\n") {
+			if strutils.StartsWith(line, "// {") {
+			var err error
+			index, err = extractNumber(line)
+			if err != nil {
+				return nil, fmt.Errorf("error extracting number from file %s, line %d: %v", file.Name, lineNum+1, err)
+			}
 
-                    logging.Info("Index found: %d", index)
-                    hasIndex = true
-                    break
-                }
-            }
+			logging.Info("Index found: %d", index)
+			hasIndex = true
+			break
+		}
+	}
 
-            if hasIndex {
-                if prevFile, ok := orderedFiles[index]; !ok {
-                    logging.Info("Added file: %s with index: %d", file.Name, index)
-                    orderedFiles[index] = file
-                    if index > maxIndex {
-                        maxIndex = index
-                    }
-                } else {
-                    // Replace the file with the duplicate index
-                    logging.Info("Replaced file: %s with index: %d", prevFile.Name, index)
-                    orderedFiles[index] = file
-                }
-            } else {
-                maxIndex++
-                logging.Info("Added file: %s with index: %d", file.Name, maxIndex)
-                orderedFiles[maxIndex] = file
-            }
-        }
-    }
+	if hasIndex {
+		if prevFile, ok := orderedFiles[index]; !ok {
+			logging.Info("Added file: %s with index: %d", file.Name, index)
+			orderedFiles[index] = file
+			if index > maxIndex {
+				maxIndex = index
+			}
+		} else {
+			// Replace the file with the duplicate index
+			logging.Info("Replaced file: %s with index: %d", prevFile.Name, index)
+			orderedFiles[index] = file
+			maxIndex++
+			logging.Info("Added file: %s with index: %d", prevFile.Name, maxIndex)
+			orderedFiles[maxIndex] = prevFile
+		}
+	} else {
+		maxIndex++
+		logging.Info("Added file: %s with index: %d", file.Name, maxIndex)
+		orderedFiles[maxIndex] = file
+	}
+}
 
     keys := make([]int, 0, len(orderedFiles))
     for k := range orderedFiles {
