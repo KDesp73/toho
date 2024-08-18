@@ -1,3 +1,0 @@
-package mylib
-
-// TODO: implement
