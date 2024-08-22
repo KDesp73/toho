@@ -1,43 +1,46 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
-	"strings"
 	"toho/internal/builder"
-	"toho/internal/files"
 	"toho/internal/constants"
+	"toho/internal/files"
 	"toho/internal/logging"
 )
 
 func main() {
-	if(os.Args[1] == "-h" || os.Args[1] == "--help"){
-		logging.Info("Usage: %s <project-path> <filename> <library-define>", os.Args[0]);
-		return
-	}
+	version := flag.Bool("v", false, "Prints the version of the executable")
+	project := flag.String("project", "", "Specify the root path of your library")
+	filename := flag.String("header", "", "Specify the generated header file name")
+	define := flag.String("define", "", "Specify the library's macro prefix")
+	flag.Parse()
 
-	if(os.Args[1] == "-v" || os.Args[1] == "--version"){
+	if(*version) {
 		fmt.Printf("toho v%s\n", constants.VERSION)
 		return
 	}
 
-	if(len(os.Args) < 4) {
-		logging.Info("Usage: %s <project-path> <filename> <library-define>", os.Args[0]);
-		return
+	if(*project == ""){
+		logging.Panic("Please specify a project path")
 	}
 
-	project := os.Args[1]
-	filename := os.Args[2]
-	define := strings.ToUpper(os.Args[3])
+	if(*filename == ""){
+		logging.Panic("Please specify a header file")
+	}
 
-	logging.Info("Project path: %s", project)
-	logging.Info("File name: %s", filename)
-	logging.Info("Library define: %s", define)
+	if(*define == ""){
+		logging.Panic("Please specify a macro prefix")
+	}
+
+	logging.Info("Project path: %s", *project)
+	logging.Info("File name: %s", *filename)
+	logging.Info("Library define: %s", *define)
 
 	listConfig := files.ListConfig{
 		Paths: []string {
-			files.SrcDir(project),
-			files.IncludeDir(project),
+			files.SrcDir(*project),
+			files.IncludeDir(*project),
 		},
 		Extensions: []string {
 			"c",
@@ -62,11 +65,11 @@ func main() {
 		logging.Panic("%v", err)
 	}
 
-	err = builder.Build(filename, define)
+	err = builder.Build(*filename, *define)
 
 	if err != nil {
 		logging.Panic("%v", err)
 	}
 
-	logging.Info("%s generated successfully", filename)
+	logging.Info("%s generated successfully", *filename)
 }
