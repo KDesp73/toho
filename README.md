@@ -22,6 +22,12 @@ go build ./cmd/toho-cli
 $ toho <project-path> <filename> <library-define>
 ```
 
+## Specify order of inclusion
+
+To specify the order of inclusion of the header files, you can add a `// {index}` comment in them
+
+So for including a file first add the `// {0}` comment in it
+
 ## LICENSE
 
 [MIT](./LICENSE)
